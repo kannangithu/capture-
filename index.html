@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Tracking & Live Webcam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        video {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to My Website</h1>
+    <div class="container">
+        <h2>Live Webcam</h2>
+        <video id="videoElement" autoplay></video>
+        <button onclick="takeSnapshot()">Take Photo</button>
+        <canvas id="canvasElement"></canvas>
+        <p id="message"></p>
+    </div>
+
+    <!-- Statcounter Visitor Tracking -->
+    <script type="text/javascript">
+        var sc_project=YOUR_PROJECT_ID; 
+        var sc_invisible=1; 
+        var sc_security="YOUR_SECURITY_CODE"; 
+        var scJsHost = (("https:" == document.location.protocol) ? "https://secure." : "http://www.");
+        document.write("<sc"+"ript type='text/javascript' src='" + scJsHost + "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><img src="https://c.statcounter.com/YOUR_PROJECT_ID/0/YOUR_SECURITY_CODE/1/" alt="visitor counter"></noscript>
+
+    <!-- Webcam Access Script -->
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { 
+            document.getElementById('videoElement').srcObject = stream; 
+        })
+        .catch(error => { 
+            document.getElementById('message').innerText = "Webcam access denied."; 
+        });
+
+        function takeSnapshot() {
+            let video = document.getElementById('videoElement');
+            let canvas = document.getElementById('canvasElement');
+            let context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            let imageData = canvas.toDataURL("image/png");
+            document.getElementById('message').innerHTML = "Photo Captured!";
+            console.log("Captured Image:", imageData);
+        }
+    </script>
+
+</body>
+</html>
