@@ -6,7 +6,8 @@
     <title>Webcam Capture & Upload</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
-        video, canvas { width: 80%; max-width: 400px; margin-top: 10px; }
+        video, canvas, img { width: 80%; max-width: 400px; margin-top: 10px; }
+        button { margin: 10px; padding: 10px; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -14,16 +15,17 @@
     <video id="webcam" autoplay></video>
     <button onclick="capturePhoto()">Take Photo</button>
     <canvas id="canvas" style="display: none;"></canvas>
-    <p><button onclick="uploadPhoto()">Upload Photo</button></p>
+    <button onclick="uploadPhoto()">Upload Photo</button>
+    
     <h3>Uploaded Image:</h3>
-    <img id="uploadedImage" style="width: 80%; max-width: 400px;">
+    <img id="uploadedImage" alt="No Image Yet">
 
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-storage.js"></script>
-    
+
     <script>
-        // Initialize Firebase (Replace with your Firebase Config)
+        // 🔹 Replace this with your Firebase Config
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -32,6 +34,8 @@
             messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
             appId: "YOUR_APP_ID"
         };
+
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const storage = firebase.storage();
 
@@ -39,7 +43,7 @@
         const video = document.getElementById('webcam');
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => { video.srcObject = stream; })
-            .catch(err => console.error("Error accessing webcam:", err));
+            .catch(err => alert("Camera access denied or unavailable."));
 
         // Capture Photo
         function capturePhoto() {
