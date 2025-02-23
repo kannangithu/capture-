@@ -3,105 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visitor Tracking & Live Webcam</title>
+    <title>Webcam Capture & Upload</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-        }
-        video {
-            width: 100%;
-            max-width: 500px;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            background: #007bff;
-            color: white;
-            border-radius: 5px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        canvas {
-            display: none;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        video, canvas { width: 80%; max-width: 400px; margin-top: 10px; }
     </style>
 </head>
 <body>
+    <h2>Live Webcam</h2>
+    <video id="webcam" autoplay></video>
+    <button onclick="capturePhoto()">Take Photo</button>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <p><button onclick="uploadPhoto()">Upload Photo</button></p>
+    <h3>Uploaded Image:</h3>
+    <img id="uploadedImage" style="width: 80%; max-width: 400px;">
 
-    <h1>Welcome to My Website</h1>
-    <div class="container">
-        <h2>Live Webcam</h2>
-        <video id="videoElement" autoplay></video>
-        <button onclick="takeSnapshot()">Take Photo</button>
-        <canvas id="canvasElement"></canvas>
-        <p id="message"></p>
-    </div>
-
-    <!-- Statcounter Visitor Tracking (Updated Code) -->
-    <!-- Default Statcounter code for Capture -->
-    <script type="text/javascript">
-        var sc_project=13090674; 
-        var sc_invisible=1; 
-        var sc_security="6a083d81"; 
-    </script>
-    <script type="text/javascript"
-        src="https://www.statcounter.com/counter/counter.js"
-        async></script>
-    <noscript>
-        <div class="statcounter">
-            <a title="Web Analytics" href="https://statcounter.com/" target="_blank">
-                <img class="statcounter"
-                     src="https://c.statcounter.com/13090674/0/6a083d81/1/"
-                     alt="Web Analytics"
-                     referrerPolicy="no-referrer-when-downgrade">
-            </a>
-        </div>
-    </noscript>
-    <!-- End of Statcounter Code -->
-
-    <!-- Webcam Access Script -->
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-storage.js"></script>
+    
     <script>
+        // Initialize Firebase (Replace with your Firebase Config)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        // Start Webcam
+        const video = document.getElementById('webcam');
         navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { 
-            document.getElementById('videoElement').srcObject = stream; 
-        })
-        .catch(error => { 
-            document.getElementById('message').innerText = "Webcam access denied."; 
-        });
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => console.error("Error accessing webcam:", err));
 
-        function takeSnapshot() {
-            let video = document.getElementById('videoElement');
-            let canvas = document.getElementById('canvasElement');
-            let context = canvas.getContext('2d');
-
+        // Capture Photo
+        function capturePhoto() {
+            const canvas = document.getElementById('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.getContext('2d').drawImage(video, 0, 0);
+        }
 
-            let imageData = canvas.toDataURL("image/png");
-            document.getElementById('message').innerHTML = "Photo Captured!";
-            console.log("Captured Image:", imageData);
+        // Upload Photo to Firebase Storage
+        function uploadPhoto() {
+            const canvas = document.getElementById('canvas');
+            canvas.toBlob(blob => {
+                const storageRef = storage.ref('photos/' + Date.now() + '.png');
+                storageRef.put(blob).then(snapshot => {
+                    storageRef.getDownloadURL().then(url => {
+                        document.getElementById('uploadedImage').src = url;
+                        alert("Photo uploaded successfully!");
+                    });
+                });
+            }, 'image/png');
         }
     </script>
-
 </body>
 </html>
